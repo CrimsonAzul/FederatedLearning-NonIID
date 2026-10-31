@@ -1,0 +1,55 @@
+# One-command demo (NVIDIA GPU + NVIDIA Container Toolkit / Docker Desktop with WSL2):
+#
+#     docker compose up --build --scale client=10
+#
+# then open http://localhost:8000 for the live dashboard. Kill one client
+# container mid-run (docker ps, then docker kill <name>) and watch the server
+# carry on; `docker compose up -d --scale client=10` brings in a replacement.
+#
+# Run another single-run config with FL_CONFIG=configs/<file>.yaml; its
+# num_clients must equal the --scale value. No GPU? Add the CPU override:
+#     docker compose -f docker-compose.yml -f docker-compose.cpu.yml up --build --scale client=10
+
+x-app: &app
+  build: .
+  image: federated-noniid:latest
+
+x-gpu: &gpu
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: all
+            capabilities: [gpu]
+
+services:
+  # Downloads CIFAR-10 and writes the test set and one shard file per client, then exits.
+  prepare:
+    <<: *app
+    command: python -m scripts.prepare_data ${FL_CONFIG:-configs/demo.yaml}
+    volumes:
+      - ./data:/app/data
+
+  server:
+    <<: [*app, *gpu]
+    command: python -m server.app --spec ${FL_CONFIG:-configs/demo.yaml} --port 8000 --linger
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data/test:/app/data/test:ro       # the held-out test set and nothing else
+      - ./results:/app/results
+    depends_on:
+      prepare:
+        condition: service_completed_successfully
+
+  client:
+    <<: [*app, *gpu]
+    command: python -m client.client --server http://server:8000
+    volumes:
+      - ./data/shards:/app/data/shards:ro   # client shards; the server never mounts these
+    depends_on:
+      prepare:
+        condition: service_completed_successfully
+      server:
+        condition: service_started

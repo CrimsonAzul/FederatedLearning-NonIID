@@ -1,0 +1,13 @@
+# Robustness: each selected client independently goes silent with probability 0.2
+# every round. The server notices after heartbeat_timeout seconds and aggregates
+# whatever arrived. Compare with the dropout-free runs from experiments 3 and 4.
+# FedProx's mu is the best value from 04_fedprox_mu.yaml; scripts.run_all writes it
+# here (with the 04 accuracies as a comment) before running this file.
+name: dropout
+seeds: [0, 1, 2]
+base:
+  alpha: 0.1
+  dropout: 0.2
+runs:
+  - {algorithm: fedavg}
+  - {algorithm: fedprox, mu: 0.01}

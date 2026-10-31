@@ -1,0 +1,11 @@
+# How much of the alpha = 0.1 damage does FedProx recover, and for which mu?
+# mu = 0 would be FedAvg exactly (that run comes from 03_fedavg_noniid.yaml).
+# Too small a mu changes nothing; too large pins clients to the global model
+# so they barely learn. The sweep covers four orders of magnitude.
+name: fedprox_mu
+seeds: [0, 1, 2]
+base:
+  algorithm: fedprox
+  alpha: 0.1
+sweep:
+  mu: [0.001, 0.01, 0.1, 1.0]

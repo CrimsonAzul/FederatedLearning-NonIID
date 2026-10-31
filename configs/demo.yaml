@@ -1,0 +1,12 @@
+# One run for the Docker Compose demo (docker compose up --scale client=10).
+# 20% of the selected clients go silent each round, so the dashboard shows
+# the server detecting dropouts and carrying on without them.
+name: demo
+seeds: [0]
+base:
+  algorithm: fedavg
+  results_dir: results/demo
+  num_clients: 10
+  alpha: 1.0
+  rounds: 50
+  dropout: 0.2

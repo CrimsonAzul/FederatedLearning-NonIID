@@ -1,0 +1,10 @@
+# Install PyTorch first, from the index that matches your machine (it is not listed
+# here on purpose: pip would otherwise fetch the CPU-only build from PyPI on Windows):
+#   NVIDIA GPU:  pip install torch --index-url https://download.pytorch.org/whl/cu128
+#   CPU only:    pip install torch --index-url https://download.pytorch.org/whl/cpu
+numpy>=1.24
+flask>=3.0
+requests>=2.31
+pyyaml>=6.0
+matplotlib>=3.7
+pytest>=8.0

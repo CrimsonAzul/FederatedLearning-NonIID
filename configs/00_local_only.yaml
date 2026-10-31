@@ -1,0 +1,10 @@
+# Lower bound: every client trains alone on its own shard, no federation.
+# Reported accuracy = mean over clients, each scored on the full test set.
+name: local_only
+seeds: [0, 1, 2]
+base:
+  algorithm: local
+  num_clients: 10
+  epochs: 50
+sweep:
+  alpha: [100, 1, 0.1]

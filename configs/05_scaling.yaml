@@ -1,0 +1,10 @@
+# More, smaller clients and partial participation, at alpha = 0.1.
+# With 20 clients on a 6 GB GPU pass --gpu-clients 10 (see README, hardware notes).
+name: scaling
+seeds: [0, 1, 2]
+base:
+  algorithm: fedavg
+  alpha: 0.1
+sweep:
+  num_clients: [5, 10, 20]
+  participation: [0.5, 1.0]

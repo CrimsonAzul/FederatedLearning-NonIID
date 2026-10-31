@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.tmp
+.pytest_cache/
+data/
+# keep per-run configs, metrics and summaries (small, and they regenerate every plot); drop logs
+results/**/logs/
+results/smoke/
+results/demo/

@@ -1,0 +1,7 @@
+# Override for machines without an NVIDIA GPU: drops the GPU reservations.
+#     docker compose -f docker-compose.yml -f docker-compose.cpu.yml up --build --scale client=10
+services:
+  server:
+    deploy: !reset {}
+  client:
+    deploy: !reset {}

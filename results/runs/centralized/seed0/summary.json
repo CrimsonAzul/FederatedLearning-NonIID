@@ -1,0 +1,11 @@
+{
+  "run_name": "centralized",
+  "ok": true,
+  "rounds_completed": 50,
+  "final_acc": 0.8644,
+  "final_acc_last5": 0.8684200000000001,
+  "best_acc": 0.8705,
+  "rounds_to_target": 2,
+  "target_acc": 0.6,
+  "total_time": 383.9
+}

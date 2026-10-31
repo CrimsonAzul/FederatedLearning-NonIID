@@ -1,0 +1,8 @@
+# The core question: how much does label skew hurt FedAvg?
+# alpha = 1: clients have a few dominant classes. alpha = 0.1: most clients see 1-3 classes.
+name: fedavg_noniid
+seeds: [0, 1, 2]
+base:
+  algorithm: fedavg
+sweep:
+  alpha: [1, 0.1]

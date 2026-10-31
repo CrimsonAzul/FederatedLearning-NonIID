@@ -1,0 +1,6 @@
+# Upper bound: the same model trained on all 50,000 images in one place.
+name: centralized
+seeds: [0, 1, 2]
+base:
+  algorithm: centralized
+  epochs: 50

@@ -1,0 +1,18 @@
+name: tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install (CPU PyTorch)
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+      - name: Unit and end-to-end tests
+        run: pytest -q
+      - name: Smoke sweep through the experiment runner
+        run: python -m scripts.run_experiments configs/smoke.yaml && python -m scripts.report --results results/smoke

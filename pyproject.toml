@@ -1,0 +1,9 @@
+[project]
+name = "federated-noniid"
+version = "1.0.0"
+description = "Federated learning from scratch: how much does non-IID data hurt FedAvg, and how much does FedProx recover?"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

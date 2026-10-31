@@ -1,0 +1,10 @@
+{"round": 5, "test_acc": 0.19788, "test_acc_std": 0.06154835172447756, "test_acc_min": 0.1009, "test_acc_max": 0.3111, "time": 1793454339.839}
+{"round": 10, "test_acc": 0.21603999999999995, "test_acc_std": 0.06966804432449643, "test_acc_min": 0.1158, "test_acc_max": 0.3307, "time": 1793454339.839}
+{"round": 15, "test_acc": 0.22694, "test_acc_std": 0.06059148785101748, "test_acc_min": 0.1495, "test_acc_max": 0.3285, "time": 1793454339.839}
+{"round": 20, "test_acc": 0.24248000000000003, "test_acc_std": 0.062467220203879736, "test_acc_min": 0.1513, "test_acc_max": 0.3462, "time": 1793454339.839}
+{"round": 25, "test_acc": 0.24799000000000002, "test_acc_std": 0.0723891490487352, "test_acc_min": 0.1273, "test_acc_max": 0.3452, "time": 1793454339.839}
+{"round": 30, "test_acc": 0.25866, "test_acc_std": 0.06824114887661256, "test_acc_min": 0.1496, "test_acc_max": 0.3511, "time": 1793454339.839}
+{"round": 35, "test_acc": 0.26341000000000003, "test_acc_std": 0.06806049441489534, "test_acc_min": 0.156, "test_acc_max": 0.3601, "time": 1793454339.839}
+{"round": 40, "test_acc": 0.25791000000000003, "test_acc_std": 0.07660605002217515, "test_acc_min": 0.1467, "test_acc_max": 0.3655, "time": 1793454339.839}
+{"round": 45, "test_acc": 0.25891, "test_acc_std": 0.0698418993155255, "test_acc_min": 0.1624, "test_acc_max": 0.3633, "time": 1793454339.839}
+{"round": 50, "test_acc": 0.26576999999999995, "test_acc_std": 0.07733400351721097, "test_acc_min": 0.1427, "test_acc_max": 0.3816, "time": 1793454339.84}

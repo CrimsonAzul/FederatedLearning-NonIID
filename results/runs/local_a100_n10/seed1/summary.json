@@ -1,0 +1,23 @@
+{
+  "run_name": "local_a100_n10",
+  "ok": true,
+  "rounds_completed": 10,
+  "final_acc": 0.68468,
+  "final_acc_last5": 0.6810219999999999,
+  "best_acc": 0.6900999999999999,
+  "rounds_to_target": 15,
+  "target_acc": 0.6,
+  "total_time": 363.2,
+  "per_client_acc": [
+    0.7,
+    0.6932,
+    0.6835,
+    0.6926,
+    0.6926,
+    0.7008,
+    0.6984,
+    0.6147,
+    0.6919,
+    0.6791
+  ]
+}

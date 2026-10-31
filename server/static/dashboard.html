@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FL server</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb; --surface-2: #f0efec;
+    --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,0.10);
+    --series: #2a78d6; --series-wash: rgba(42,120,214,0.10);
+    --good: #0ca30c; --critical: #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19; --surface-2: #262624;
+      --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,0.10);
+      --series: #3987e5; --series-wash: rgba(57,135,229,0.14);
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin-bottom: 16px; }
+  h1 { font-size: 18px; font-weight: 600; margin: 0; }
+  .run { color: var(--ink-2); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+  .chip { border: 1px solid var(--ring); border-radius: 999px; padding: 2px 10px; color: var(--ink-2); font-size: 12px; }
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .top { display: grid; grid-template-columns: minmax(180px, 1fr) 3fr; gap: 16px; margin-bottom: 16px; }
+  .top .card { margin-bottom: 0; }
+  @media (max-width: 680px) { .top { grid-template-columns: 1fr; } }
+  .label { color: var(--muted); font-size: 12px; }
+  .hero { font-size: 48px; font-weight: 600; line-height: 1.1; margin: 4px 0; }
+  .sub { color: var(--ink-2); }
+  .bar { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; margin-top: 12px; }
+  .bar > div { height: 100%; background: var(--series); width: 0; transition: width .3s; }
+  .clients { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; margin-top: 8px; }
+  .tile { border: 1px solid var(--ring); border-radius: 8px; padding: 8px; background: var(--surface-2); min-height: 62px; }
+  .tile .id { font-weight: 600; font-size: 13px; }
+  .tile .st { font-size: 12px; color: var(--ink-2); display: flex; align-items: center; gap: 4px; }
+  .tile .n { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tile.selected, .tile.training { background: var(--series-wash); border-color: var(--series); }
+  .tile.training .dot { animation: pulse 1s infinite; }
+  .tile.reported { border-color: var(--good); }
+  .tile.dropped { border-color: var(--critical); }
+  .tile.offline, .tile.absent { opacity: .55; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+  .training .dot, .selected .dot { background: var(--series); }
+  .reported .dot { background: var(--good); }
+  .dropped .dot { background: var(--critical); }
+  @keyframes pulse { 50% { opacity: .3; } }
+  .chart { position: relative; }
+  svg { display: block; width: 100%; height: auto; }
+  .tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .baseline { stroke: var(--axis); stroke-width: 1; }
+  .line { fill: none; stroke: var(--series); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .end { fill: var(--series); stroke: var(--surface); stroke-width: 2; }
+  .endlabel { fill: var(--ink); font-size: 12px; font-weight: 600; }
+  .cross { stroke: var(--axis); stroke-width: 1; }
+  .tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--ring);
+         border-radius: 8px; padding: 6px 10px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+         white-space: nowrap; display: none; }
+  .tip b { font-weight: 600; }
+  .empty { color: var(--muted); padding: 40px 0; text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Federated training</h1>
+    <span class="run" id="run">connecting…</span>
+    <div class="chips" id="chips"></div>
+  </header>
+
+  <div class="top">
+    <section class="card">
+      <div class="label">Global test accuracy</div>
+      <div class="hero" id="acc">–</div>
+      <div class="sub" id="round">waiting for clients</div>
+      <div class="bar"><div id="progress"></div></div>
+    </section>
+    <section class="card">
+      <div class="label">Clients this round</div>
+      <div class="clients" id="clients"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="label">Test accuracy by round</div>
+    <div class="chart" id="chart"><div class="empty">no rounds yet</div></div>
+  </section>
+</main>
+
+<script>
+const STATE_TEXT = { absent: "not joined", loading: "loading", idle: "idle", selected: "selected",
+                     training: "training", reported: "✓ reported", dropped: "✕ dropped", offline: "— offline" };
+const pct = v => (v * 100).toFixed(1) + "%";
+const $ = id => document.getElementById(id);
+
+function render(s) {
+  $("run").textContent = s.run;
+  const chips = [s.algorithm, "α = " + s.alpha, "participation " + Math.round(s.participation * 100) + "%"];
+  if (s.algorithm === "fedprox") chips.push("μ = " + s.mu);
+  if (s.dropout > 0) chips.push("dropout " + Math.round(s.dropout * 100) + "%");
+  $("chips").innerHTML = chips.map(c => `<span class="chip">${c}</span>`).join("");
+
+  const evals = s.history.filter(h => h.test_acc != null);
+  const last = evals[evals.length - 1];
+  $("acc").textContent = last ? pct(last.test_acc) : "–";
+  const best = evals.length ? Math.max(...evals.map(h => h.test_acc)) : null;
+  $("round").textContent = s.phase === "registering" ? "waiting for clients to join"
+    : s.phase === "done" ? `finished ${s.rounds} rounds · best ${pct(best)}`
+    : `round ${s.round} of ${s.rounds}` + (best != null ? ` · best ${pct(best)}` : "");
+  $("progress").style.width = (100 * s.history.length / s.rounds) + "%";
+
+  $("clients").innerHTML = s.clients.map(c => `
+    <div class="tile ${c.state}">
+      <div class="id">client ${String(c.id).padStart(2, "0")}</div>
+      <div class="st"><span class="dot"></span>${STATE_TEXT[c.state] || c.state}</div>
+      <div class="n">${c.num_samples != null ? c.num_samples.toLocaleString() + " samples" : ""}</div>
+    </div>`).join("");
+
+  drawChart(evals, s.rounds);
+}
+
+function drawChart(evals, rounds) {
+  const box = $("chart");
+  if (!evals.length) { box.innerHTML = '<div class="empty">no rounds yet</div>'; return; }
+  // Size the drawing to the container so text stays 11px on phones too.
+  const W = Math.max(300, box.clientWidth), H = W < 600 ? 220 : 300, m = { l: 44, r: 56, t: 12, b: 28 };
+  const x = r => m.l + (r - 1) / Math.max(1, rounds - 1) * (W - m.l - m.r);
+  const y = v => m.t + (1 - v) * (H - m.t - m.b);
+  let g = "";
+  for (let v = 0; v <= 1.0001; v += 0.2) {
+    g += `<line class="${v === 0 ? "baseline" : "gridline"}" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/>`;
+    g += `<text class="tick" x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end">${Math.round(v * 100)}%</text>`;
+  }
+  const step = Math.max(1, Math.ceil(rounds / 10 / 5) * 5);
+  for (let r = step; r <= rounds; r += step)
+    g += `<text class="tick" x="${x(r)}" y="${H - 8}" text-anchor="middle">${r}</text>`;
+  const pts = evals.map(h => `${x(h.round).toFixed(1)},${y(h.test_acc).toFixed(1)}`).join(" ");
+  const last = evals[evals.length - 1];
+  g += `<polyline class="line" points="${pts}"/>`;
+  g += `<circle class="end" cx="${x(last.round)}" cy="${y(last.test_acc)}" r="4"/>`;
+  g += `<text class="endlabel" x="${x(last.round) + 8}" y="${y(last.test_acc) + 4}">${pct(last.test_acc)}</text>`;
+  g += `<line class="cross" id="cross" y1="${m.t}" y2="${H - m.b}" style="display:none"/>`;
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Test accuracy by round">${g}
+    <rect id="hit" x="${m.l}" y="${m.t}" width="${W - m.l - m.r}" height="${H - m.t - m.b}" fill="transparent"/></svg>
+    <div class="tip" id="tip"></div>`;
+
+  const svg = box.querySelector("svg"), tip = $("tip"), cross = $("cross");
+  $("hit").addEventListener("mousemove", ev => {
+    const p = svg.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY;
+    const sx = p.matrixTransform(svg.getScreenCTM().inverse()).x;
+    let h = evals[0];
+    for (const e of evals) if (Math.abs(x(e.round) - sx) < Math.abs(x(h.round) - sx)) h = e;
+    cross.setAttribute("x1", x(h.round)); cross.setAttribute("x2", x(h.round)); cross.style.display = "";
+    tip.innerHTML = `round <b>${h.round}</b> · accuracy <b>${pct(h.test_acc)}</b><br>`
+                  + `${h.received} updates` + (h.dropped ? `, ${h.dropped} dropped` : "");
+    const rect = box.getBoundingClientRect();
+    const px = ev.clientX - rect.left;
+    tip.style.display = "block";
+    tip.style.left = Math.min(px + 12, rect.width - tip.offsetWidth - 4) + "px";
+    tip.style.top = (ev.clientY - rect.top - 48) + "px";
+  });
+  $("hit").addEventListener("mouseleave", () => { tip.style.display = "none"; cross.style.display = "none"; });
+}
+
+let hovering = false;
+document.addEventListener("mouseover", e => { hovering = !!e.target.closest("#chart"); });
+async function poll() {
+  try {
+    const s = await (await fetch("status")).json();
+    if (!hovering) render(s);           // don't redraw under the user's cursor
+  } catch (e) {
+    $("round").textContent = "server not reachable (training may have finished)";
+  }
+  setTimeout(poll, 1000);
+}
+poll();
+</script>
+</body>
+</html>

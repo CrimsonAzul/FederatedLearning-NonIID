@@ -1,0 +1,21 @@
+# Two-minute check that every code path works, on a tiny synthetic dataset.
+# CPU is fine:  python -m scripts.run_experiments configs/smoke.yaml
+name: smoke
+seeds: [0]
+base:
+  dataset: synthetic
+  results_dir: results/smoke
+  num_clients: 3
+  alpha: 0.5
+  rounds: 4
+  local_epochs: 1
+  epochs: 4
+  augment: false
+  target_acc: 0.5
+  heartbeat_timeout: 1.5
+runs:
+  - {algorithm: centralized}
+  - {algorithm: local}
+  - {algorithm: fedavg}
+  - {algorithm: fedprox, mu: 0.01}
+  - {algorithm: fedavg, dropout: 0.3}

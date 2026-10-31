@@ -1,0 +1,8 @@
+# FedAvg on a near-IID split (Dirichlet alpha = 100: every client gets ~10% of each class).
+# Everything not listed uses the defaults in fl/config.py:
+# 10 clients, 100 rounds, 2 local epochs, batch 64, SGD lr 0.01 momentum 0.9.
+name: fedavg_iid
+seeds: [0, 1, 2]
+base:
+  algorithm: fedavg
+  alpha: 100
