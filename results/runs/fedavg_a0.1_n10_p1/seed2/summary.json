@@ -1,0 +1,12 @@
+{
+  "run_name": "fedavg_a0.1_n10_p1",
+  "ok": true,
+  "rounds_completed": 100,
+  "final_acc": 0.7728,
+  "final_acc_last5": 0.7666000000000001,
+  "best_acc": 0.7733,
+  "rounds_to_target": 22,
+  "target_acc": 0.6,
+  "total_time": 873.5,
+  "total_dropped": 110
+}

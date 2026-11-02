@@ -14,13 +14,28 @@ No FL framework: the server, the client protocol, FedAvg, FedProx, the Dirichlet
 CIFAR-10, small CNN, 10 clients, 100 rounds, 2 local epochs per round, 3 seeds per configuration. Curves show the mean over seeds with a 5-round moving average (non-IID runs swing a lot from round to round); shaded bands are ±1 standard deviation over seeds. The raw per-round numbers are in `results/runs/*/seed*/metrics.jsonl`.
 
 <!-- results:start -->
-*Run the sweep, then `python -m scripts.report --readme` to fill this table.*
+| Run | Data split | Clients | Final test accuracy (%) | Rounds to 60% | Seeds |
+|---|---|---|---|---|---|
+| Centralized | pooled (all data) | 1 | 86.5 ± 0.3 | 2 epochs | 3 |
+| Local only | IID (α = 100) | 10 | 68.1 ± 0.1 | 15 epochs | 3 |
+| Local only | Dirichlet α = 1 | 10 | 55.7 ± 2.1 | not reached | 3 |
+| Local only | Dirichlet α = 0.1 | 10 | 25.5 ± 0.9 | not reached | 3 |
+| FedAvg | IID (α = 100) | 10 | 87.6 ± 0.0 | 4 | 3 |
+| FedAvg | Dirichlet α = 1 | 10 | 85.9 ± 0.3 | 7 | 3 |
+| FedAvg | Dirichlet α = 0.1 | 10 | 77.0 ± 1.1 | 21 | 3 |
+
+- Centralized upper bound: 86.5%
+- FedAvg, 10 clients: 87.6% at α = 100 → 77.0% at α = 0.1 (-10.5 points)
+- Local-only lower bound at α = 0.1: 25.5%
 <!-- results:end -->
 
-| | |
-|---|---|
-| ![FedAvg vs data skew](results/plots/noniid_fedavg.png) | ![FedProx mu sweep](results/plots/fedprox_mu.png) |
-| ![Scaling](results/plots/scaling.png) | ![Dropout](results/plots/dropout.png) |
+**So far:** federation matches centralized training on IID data. Under strong label skew (α = 0.1) FedAvg loses about 10 points, but still sits about 52 points above clients training alone.
+
+**Not run yet:** the FedProx μ sweep (`04`), scaling (`05`) and dropout (`06`). `python -m scripts.run_all` runs them, skipping everything above, and adds their rows and plots. Until then the question of how much FedProx recovers is open.
+
+**Note on one seed:** in FedAvg α = 0.1 seed 2, the server dropped 110 of about 1,000 client updates (timeouts while the machine was heavily loaded by another job). Its accuracy, 76.7%, lies between the other two seeds (78.6% and 75.9%).
+
+![FedAvg vs data skew](results/plots/noniid_fedavg.png)
 
 ![What each client holds](results/plots/partitions.png)
 
